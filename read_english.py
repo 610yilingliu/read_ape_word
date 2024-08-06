@@ -7,7 +7,7 @@ from datetime import datetime
 class LearnEnglish:
     def __init__(self, input_folder, output_folder):
         self.folder = './ape_json/'
-        self.output_folder = './wrong_record/'
+        self.output_folder = './wrong_list/'
         self.word_dicts = defaultdict(set)
         self.wrong_dict = defaultdict(set)
         self.engine = pyttsx3.init()
@@ -44,42 +44,57 @@ class LearnEnglish:
                     self.engine.runAndWait()
                     input_word = input('Input word you heard:')
                     if input_word == 'exit':
-                        break
+                        return
+                    if input_word == 'end':
+                        self.save_wrong_words()
+                        return
                     if input_word == word:
                         print('Correct')
                     else:
-                        print('Wrong')
+                        print('Wrong, answer is:', word)
                         self.wrong_dict[k].add(word)
                     
         else:
             for word in self.word_dicts[review_key]:
-                engine = pyttsx3.init()
-                engine.say(word)
+                self.engine.say(word)
                 input_word = input('Input word you heard:')
                 if input_word == 'exit':
-                    break
+                    return
+                if input_word == 'end':
+                    self.save_wrong_words()
+                    return
                 if input_word == word:
                     print('Correct')
                 else:
-                    print('Wrong')
+                    print('Wrong, answer is:', word)
                     self.wrong_dict[review_key].add(word)
-                engine.runAndWait()
+                self.engine.runAndWait()
 
     def save_wrong_words(self):
         current_time = datetime.now()
         formatted_time = current_time.strftime("%Y%m%d")
         filename = formatted_time + '_wrong.json'
+        save_dict = {k:list(v) for k, v in self.wrong_dict.items()}
         suffix = 0
         while os.path.exists(os.path.join(self.output_folder, filename)):
+            # 避免重复调用一次存两
+            content_loaded = self.check_wrong_words_dup(filename)
+            if content_loaded == save_dict:
+                print('Already saved in the file:', filename)
+                return
             suffix += 1
             filename = formatted_time + '_wrong' + str(suffix) + '.json'
         with open(os.path.join(self.output_folder, filename), 'w') as f:
-            json.dump(self.wrong_dict, f)
+            json.dump(save_dict, f)
         
     def load_wrong_words(self):
         filename = input('Input the filename:')
         with open(os.path.join(self.output_folder, filename), 'r') as f:
             self.wrong_dict = json.load(f)
+    
+    def check_wrong_words_dup(self, filename):
+        with open(os.path.join(self.output_folder, filename), 'r') as f:
+            return json.load(f)
 
 if __name__ == '__main__':
     learn = LearnEnglish('./ape_json/', './wrong_record/')
