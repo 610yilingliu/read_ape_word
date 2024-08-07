@@ -3,6 +3,7 @@ import json
 import os
 from collections import defaultdict
 from datetime import datetime
+from translate import Translator
 
 class LearnEnglish:
     def __init__(self, input_folder = './ape_json/', output_folder = './wrong_list/'):
@@ -44,9 +45,11 @@ class LearnEnglish:
         print('Total words:', cnt)
 
     def review_words(self, review_key = 'all'):
+        cnt = 0
         if review_key == 'all':
             for k in self.word_dicts:
                 for word in self.word_dicts[k]:
+                    word_zhcn = Translator(to_lang='zh-cn').translate(word)
                     self.engine.say(word)
                     self.engine.runAndWait()
                     input_word = input('Input word you heard:')
@@ -60,14 +63,18 @@ class LearnEnglish:
                         self.engine.runAndWait()
                         input_word = input('Input word you heard:')
                     if input_word == word:
-                        print('Correct')
+                        print('Correct, word means:', word_zhcn)
                     else:
-                        print('Wrong, answer is:', word)
-                        self.wrong_dict[k].add(word)
+                        print('Wrong, answer is:', word, 'means', word_zhcn)
+                        self.wrong_dict[k].add((word, word_zhcn))
+                    cnt += 1
+                    print('Reviewed:', cnt)
                     
         else:
             for word in self.word_dicts[review_key]:
+                word_zhcn = Translator(to_lang='zh-cn').translate(word)
                 self.engine.say(word)
+                self.engine.runAndWait()
                 input_word = input('Input word you heard:')
                 if input_word == 'exit':
                     return
@@ -79,17 +86,18 @@ class LearnEnglish:
                     self.engine.runAndWait()
                     input_word = input('Input word you heard:')
                 if input_word == word:
-                    print('Correct')
+                    print('Correct, word means:', word_zhcn)
                 else:
-                    print('Wrong, answer is:', word)
-                    self.wrong_dict[review_key].add(word)
-                self.engine.runAndWait()
+                    print('Wrong, answer is:', word, 'means', word_zhcn)
+                    self.wrong_dict[k].add((word,word_zhcn))
+                cnt += 1
+                print('Reviewed:', cnt)
 
     def save_wrong_words(self):
         current_time = datetime.now()
         formatted_time = current_time.strftime("%Y%m%d")
         filename = formatted_time + '_wrong.json'
-        save_dict = {k:list(v) for k, v in self.wrong_dict.items()}
+        save_dict = {k:list(list(pair) for pair in v) for k, v in self.wrong_dict.items()}
         suffix = 0
         while os.path.exists(os.path.join(self.output_folder, filename)):
             # 避免重复调用一次存两
@@ -99,16 +107,16 @@ class LearnEnglish:
                 return
             suffix += 1
             filename = formatted_time + '_wrong' + str(suffix) + '.json'
-        with open(os.path.join(self.output_folder, filename), 'w') as f:
-            json.dump(save_dict, f)
+        with open(os.path.join(self.output_folder, filename), 'w', encoding = 'utf8') as f:
+            json.dump(save_dict, f, ensure_ascii= False)
         
     def load_wrong_words(self):
         filename = input('Input the filename:')
-        with open(os.path.join(self.output_folder, filename), 'r') as f:
+        with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
             self.wrong_dict = json.load(f)
     
     def check_wrong_words_dup(self, filename):
-        with open(os.path.join(self.output_folder, filename), 'r') as f:
+        with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
             return json.load(f)
 
 if __name__ == '__main__':
