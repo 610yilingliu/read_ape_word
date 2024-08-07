@@ -104,7 +104,6 @@ class LearnEnglish:
         hours_minutes = current_time.strftime("%H%M%S")
         filename = hours_minutes + '_wrong.json'
         save_dict = {k:list(list(pair) for pair in v) for k, v in self.wrong_dict.items()}
-        suffix = 0
         filename = hours_minutes + '_wrong.json'
         if not os.path.exists(os.path.join(self.output_folder, formatted_date)):
             os.makedirs(os.path.join(self.output_folder, formatted_date))
@@ -134,8 +133,7 @@ class LearnEnglish:
 if __name__ == '__main__':
     learn = LearnEnglish('./ape_json/', './wrong_record/')
     # learn.see_available_voice()
-    learn.set_voices('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
+    learn.set_voices(r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
     learn.import_words()
     learn.review_words('20240807')
     # learn.load_wrong_words('20240808')
-    learn.review_words()
