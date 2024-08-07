@@ -93,34 +93,39 @@ class LearnEnglish:
                     self.wrong_dict[review_key].add((word,word_zhcn))
                 cnt += 1
                 print('Reviewed:', cnt)
+        is_save = input('Save wrong words? (y/n):')
+        if is_save == 'y':
+            self.save_wrong_words()
+        return
 
     def save_wrong_words(self):
         current_time = datetime.now()
-        formatted_time = current_time.strftime("%Y%m%d")
-        filename = formatted_time + '_wrong.json'
+        formatted_date = current_time.strftime("%Y%m%d")
+        hours_minutes = current_time.strftime("%H%M%S")
+        filename = hours_minutes + '_wrong.json'
         save_dict = {k:list(list(pair) for pair in v) for k, v in self.wrong_dict.items()}
         suffix = 0
-        while os.path.exists(os.path.join(self.output_folder, filename)):
-            # 避免重复调用一次存两
-            content_loaded = self.check_wrong_words_dup(filename)
-            if content_loaded == save_dict:
-                print('Already saved in the file:', filename)
-                return
-            suffix += 1
-            filename = formatted_time + '_wrong' + str(suffix) + '.json'
-        with open(os.path.join(self.output_folder, filename), 'w', encoding = 'utf8') as f:
+        filename = hours_minutes + '_wrong.json'
+        if not os.path.exists(os.path.join(self.output_folder, formatted_date)):
+            os.makedirs(os.path.join(self.output_folder, formatted_date))
+
+        with open(os.path.join(self.output_folder, formatted_date, filename), 'w', encoding = 'utf8') as f:
             json.dump(save_dict, f, ensure_ascii= False)
         
-    def load_wrong_words(self):
-        filename = input('Input the filename:')
-        with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
-            loaded = json.load(f)
-            cnt = 0
-            for k, words in loaded.items():
-                for word in words:
-                    self.word_dicts[k].add(word[0])
-                    cnt += 1
-            print('Loaded words:', cnt)
+    def load_wrong_words(self, foldername = None):
+        if not filename:
+            filename = input('Input the foldername:')
+        for filename in os.listdir(os.path.join(self.output_folder, foldername)):
+            with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
+                loaded = json.load(f)
+                cnt = 0
+                for k, words in loaded.items():
+                    for word in words:
+                        prev = self.word_dicts[k].copy()
+                        self.word_dicts[k].add(word[0])
+                        if prev != self.word_dicts[k]:
+                            cnt += 1
+        print('Loaded words:', cnt)
     
     def check_wrong_words_dup(self, filename):
         with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
@@ -130,8 +135,7 @@ if __name__ == '__main__':
     learn = LearnEnglish('./ape_json/', './wrong_record/')
     # learn.see_available_voice()
     learn.set_voices('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
-    # learn.import_words()
-    # learn.review_words('20240807')
-    # learn.save_wrong_words()
-    learn.load_wrong_words()
+    learn.import_words()
+    learn.review_words('20240807')
+    # learn.load_wrong_words('20240808')
     learn.review_words()
