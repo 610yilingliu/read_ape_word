@@ -71,8 +71,8 @@ class LearnEnglish:
                     print('Reviewed:', cnt)
                     
         else:
-            for word in self.word_dicts[review_key]:
-                print('Word in current dict', len(self.word_dicts[review_key]))
+            print('Word in current dict', len(self.word_dicts[review_key]))
+            for word in self.word_dicts[review_key]:    
                 word_zhcn = Translator(to_lang='zh-cn').translate(word)
                 self.engine.say(word)
                 self.engine.runAndWait()
@@ -114,7 +114,13 @@ class LearnEnglish:
     def load_wrong_words(self):
         filename = input('Input the filename:')
         with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
-            self.wrong_dict = json.load(f)
+            loaded = json.load(f)
+            cnt = 0
+            for k, words in loaded.items():
+                for word in words:
+                    self.word_dicts[k].add(word[0])
+                    cnt += 1
+            print('Loaded words:', cnt)
     
     def check_wrong_words_dup(self, filename):
         with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
@@ -122,8 +128,10 @@ class LearnEnglish:
 
 if __name__ == '__main__':
     learn = LearnEnglish('./ape_json/', './wrong_record/')
-    learn.see_available_voice()
+    # learn.see_available_voice()
     learn.set_voices('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
-    learn.import_words()
-    learn.review_words('20240807')
-    learn.save_wrong_words()
+    # learn.import_words()
+    # learn.review_words('20240807')
+    # learn.save_wrong_words()
+    learn.load_wrong_words()
+    learn.review_words()
