@@ -8,10 +8,13 @@ class LearnEnglish:
     def __init__(self, input_folder = './ape_json/', output_folder = './wrong_list/'):
         self.folder = input_folder
         self.output_folder = output_folder
+
         if not os.path.exists(self.output_folder):
             os.makedirs(self.output_folder)
+
         if not os.path.exists(self.folder):
             os.makedirs(self.folder)
+
         self.word_dicts = defaultdict(set)
         self.wrong_dict = defaultdict(set)
         self.engine = pyttsx3.init()
@@ -52,6 +55,10 @@ class LearnEnglish:
                     if input_word == 'end':
                         self.save_wrong_words()
                         return
+                    while input_word == 'repeat':
+                        self.engine.say(word)
+                        self.engine.runAndWait()
+                        input_word = input('Input word you heard:')
                     if input_word == word:
                         print('Correct')
                     else:
@@ -67,6 +74,10 @@ class LearnEnglish:
                 if input_word == 'end':
                     self.save_wrong_words()
                     return
+                while input_word == 'repeat':
+                    self.engine.say(word)
+                    self.engine.runAndWait()
+                    input_word = input('Input word you heard:')
                 if input_word == word:
                     print('Correct')
                 else:
