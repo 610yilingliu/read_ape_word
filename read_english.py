@@ -5,9 +5,13 @@ from collections import defaultdict
 from datetime import datetime
 
 class LearnEnglish:
-    def __init__(self, input_folder, output_folder):
-        self.folder = './ape_json/'
-        self.output_folder = './wrong_list/'
+    def __init__(self, input_folder = './ape_json/', output_folder = './wrong_list/'):
+        self.folder = input_folder
+        self.output_folder = output_folder
+        if not os.path.exists(self.output_folder):
+            os.makedirs(self.output_folder)
+        if not os.path.exists(self.folder):
+            os.makedirs(self.folder)
         self.word_dicts = defaultdict(set)
         self.wrong_dict = defaultdict(set)
         self.engine = pyttsx3.init()
