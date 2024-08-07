@@ -42,7 +42,7 @@ class LearnEnglish:
                     self.word_dicts[date].add(item['word'])
                     cnt += 1
 
-        print('Total words:', cnt)
+        print('Total words Loaded:', cnt)
 
     def review_words(self, review_key = 'all'):
         cnt = 0
@@ -72,6 +72,7 @@ class LearnEnglish:
                     
         else:
             for word in self.word_dicts[review_key]:
+                print('Word in current dict', len(self.word_dicts[review_key]))
                 word_zhcn = Translator(to_lang='zh-cn').translate(word)
                 self.engine.say(word)
                 self.engine.runAndWait()
@@ -89,7 +90,7 @@ class LearnEnglish:
                     print('Correct, word means:', word_zhcn)
                 else:
                     print('Wrong, answer is:', word, 'means', word_zhcn)
-                    self.wrong_dict[k].add((word,word_zhcn))
+                    self.wrong_dict[review_key].add((word,word_zhcn))
                 cnt += 1
                 print('Reviewed:', cnt)
 
@@ -121,6 +122,8 @@ class LearnEnglish:
 
 if __name__ == '__main__':
     learn = LearnEnglish('./ape_json/', './wrong_record/')
+    learn.see_available_voice()
+    learn.set_voices('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
     learn.import_words()
-    learn.review_words()
+    learn.review_words('20240807')
     learn.save_wrong_words()
