@@ -18,6 +18,7 @@ class LearnEnglish:
 
         self.word_dicts = defaultdict(set)
         self.wrong_dict = defaultdict(set)
+        self.prev_wrong_dict = defaultdict(set)
         self.engine = pyttsx3.init()
         self.engine.setProperty('voice', 'en')
 
@@ -44,7 +45,7 @@ class LearnEnglish:
 
         print('Total words Loaded:', cnt)
 
-    def review_words(self, review_key = 'all'):
+    def review_words(self, review_key = 'all', mode = 'include_wrong'):
         cnt = 0
         if review_key == 'all':
             for k in self.word_dicts:
@@ -93,6 +94,30 @@ class LearnEnglish:
                     self.wrong_dict[review_key].add((word,word_zhcn))
                 cnt += 1
                 print('Reviewed:', cnt)
+        if mode == 'include_wrong':
+            for k in self.prev_wrong_dict:
+                for word in self.prev_wrong_dict[k]:
+                    word_zhcn = Translator(to_lang='zh-cn').translate(word)
+                    self.engine.say(word)
+                    self.engine.runAndWait()
+                    input_word = input('Input word you heard:')
+                    if input_word == 'exit':
+                        return
+                    if input_word == 'end':
+                        self.save_wrong_words()
+                        return
+                    while input_word == 'repeat':
+                        self.engine.say(word)
+                        self.engine.runAndWait()
+                        input_word = input('Input word you heard:')
+                    if input_word == word:
+                        print('Correct, word means:', word_zhcn)
+                    else:
+                        print('Wrong, answer is:', word, 'means', word_zhcn)
+                        self.wrong_dict[k].add((word, word_zhcn))
+                    cnt += 1
+                    print('Reviewed:', cnt)
+                    
         is_save = input('Save wrong words? (y/n):')
         if is_save == 'y':
             self.save_wrong_words()
@@ -112,16 +137,16 @@ class LearnEnglish:
             json.dump(save_dict, f, ensure_ascii= False)
         
     def load_wrong_words(self, foldername = None):
-        if not filename:
-            filename = input('Input the foldername:')
+        if not foldername:
+            foldername = input('Input the foldername:')
         for filename in os.listdir(os.path.join(self.output_folder, foldername)):
-            with open(os.path.join(self.output_folder, filename), 'r', encoding = 'utf8') as f:
+            with open(os.path.join(self.output_folder, foldername, filename), 'r', encoding = 'utf8') as f:
                 loaded = json.load(f)
                 cnt = 0
                 for k, words in loaded.items():
                     for word in words:
-                        prev = self.word_dicts[k].copy()
-                        self.word_dicts[k].add(word[0])
+                        prev = self.prev_wrong_dict[k].copy()
+                        self.prev_wrong_dict[k].add(word[0])
                         if prev != self.word_dicts[k]:
                             cnt += 1
         print('Loaded words:', cnt)
@@ -135,5 +160,6 @@ if __name__ == '__main__':
     # learn.see_available_voice()
     learn.set_voices(r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0')
     learn.import_words()
-    learn.review_words('20240807')
+    learn.load_wrong_words('20240807')
+    learn.review_words('20240808',  mode = 'include_wrong')
     # learn.load_wrong_words('20240808')
