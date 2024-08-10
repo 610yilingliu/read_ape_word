@@ -6,7 +6,7 @@ from datetime import datetime
 from translate import Translator
 
 class LearnEnglish:
-    def __init__(self, input_folder = './ape_json/', output_folder = './wrong_list/'):
+    def __init__(self, input_folder = './ape_json/', output_folder = './wrong_record/'):
         self.folder = input_folder
         self.output_folder = output_folder
 
