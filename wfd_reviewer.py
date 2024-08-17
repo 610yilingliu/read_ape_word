@@ -139,10 +139,11 @@ class wfd_reviewer:
                     print(f'Reviewed {call_cnt} Questions')
                     return
                 if res == True:
-                    self.wfd_table['reviewed'][i] = 1
+                    self.wfd_table['reviewed'][i] += 1
                 else:
                     self.wfd_table['wrong_date'][i].append(datetime.now().strftime("%Y-%m-%d"))
                     self.wfd_table['wrong'][i] += 1
+                    self.wfd_table['reviewed'][i] += 1
                     self.wfd_table['wrong_record'][i].append(stud_input)
         else:
             prob_range_start = prob_range[0] - 1
@@ -158,10 +159,11 @@ class wfd_reviewer:
                     print(f'Reviewed {call_cnt} Questions')
                     return
                 if res == True:
-                    self.wfd_table['reviewed'][i] = 1
+                    self.wfd_table['reviewed'][i] += 1
                 else:
                     self.wfd_table['wrong_date'][i].append(datetime.now().strftime("%Y-%m-%d"))
                     self.wfd_table['wrong'][i] += 1
+                    self.wfd_table['reviewed'][i] += 1
                     self.wfd_table['wrong_record'][i].append(stud_input)
         self.save_result(output_path)
         print(f'Reviewed {call_cnt} Questions')
