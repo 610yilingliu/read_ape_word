@@ -45,7 +45,22 @@ class check_essay:
                     print(f'Input Paragraph {curp + 1} Cannot be found')
                     print('Input:\n ',ip)
 
+# Add a comment or some code here
+def compare_strings(string1, string2):
+    if string1 == string2:
+        return "The strings are identical."
+    else:
+        differences = []
+        for i in range(min(len(string1), len(string2))):
+            if string1[i] != string2[i]:
+                differences.append(i)
+        for i in differences:
+            print(f'Position {i}: {string1[i]} vs {string2[i]}')
+        return "The strings are different at positions: " + str(differences)
+    
 if __name__ == '__main__':
     checker = check_essay('template.txt')
-    checker.check_input('20240810.txt', paragraph_num= None)
+    checker.check_input('20240812.txt', paragraph_num= None)
 
+    res = compare_strings('There are several reasons why ... has several positive impacts on society. One of them is that... It can also be argued that ... For example', 'There are several reasons why ... has several positive impacts on society. one of them is that... It can also be argued that ... For example')
+    print(res)
