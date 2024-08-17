@@ -6,10 +6,25 @@ import warnings
 import hashlib
 from google.cloud import texttospeech
 import subprocess
+import sys
+
 
 
 
 warnings.filterwarnings("ignore")
+
+class Logger(object):
+    def __init__(self, filename="log.txt"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "w")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        pass
+
 
 @staticmethod
 def count_calls(func):
@@ -164,6 +179,7 @@ class wfd_reviewer:
         target_dict = self.sentence_to_dict(target)
         res = all(k in stud_input_dict and stud_input_dict[k] >= v for k, v in target_dict.items())
         if res == False:
+            print(stud_input) # print for log
             print('Wrong Answer, answer is: ', target)
         return res, stud_input
                 
@@ -190,7 +206,10 @@ class wfd_reviewer:
 
 
 if __name__ == '__main__':
+    start_time_str = datetime.now().strftime("%Y-%m-%d_%H%M")
+    sys.stdout = Logger("./wfd_logs/" + start_time_str + ".txt")
+
     reviewer = wfd_reviewer()
     reviewer.first_time_init('wfd_316.csv')
     # reviewer.generate_mp3()
-    reviewer.review(prob_range=[1,10], output_path='wfd_test.csv')
+    reviewer.review(prob_range=[5, 10], output_path='wfd_test.csv')
